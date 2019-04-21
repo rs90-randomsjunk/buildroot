@@ -10,6 +10,7 @@ fi
 BOOTLD=$1/ubiboot.bin
 KERNEL=$1/uzImage.bin
 ROOTFS=$1/rootfs.squashfs
+MININIT=$1/mininit-syspart
 
 if [ -r $ROOTFS ] ; then
 	echo "Updating rootfs..."
@@ -23,10 +24,14 @@ if [ -r $BOOTLD ] ; then
 fi
 
 if [ -r $KERNEL ] ; then
-	KERNEL_BAK_ID=`ubinfo -d 0 -N kernel_bak |head -n1 |sed "s/.*\(\d\+\) .*/\1/"`
+	KERNEL_BAK_ID=`ubinfo -d 0 -N kernel_bak |head -n1 |sed "s/.*\([[:digit:]]\+\) .*/\1/"`
 	echo "Updating kernel..."
 	ubiupdatevol /dev/ubi0_$KERNEL_BAK_ID $KERNEL
 	ubirename /dev/ubi0 kernel kernel_bak kernel_bak kernel
+fi
+
+if [ -r $MININIT ] ; then
+	cp $MININIT /boot/mininit-syspart
 fi
 
 exit 0
