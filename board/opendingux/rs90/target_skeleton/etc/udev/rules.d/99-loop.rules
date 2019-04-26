@@ -1,1 +1,0 @@
-ACTION=="add", KERNEL=="loop-control|loop*", GROUP="loop"

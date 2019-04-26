@@ -7,5 +7,5 @@ tmpfs		/run		tmpfs	mode=0755,nosuid,nodev	0	0
 sysfs		/sys		sysfs	defaults	0	0
 tmpfs		/media		tmpfs	defaults,size=4k,mode=0755	0	0
 tmpfs		/mnt		tmpfs	defaults,size=4k,mode=1777	0	0
-debugfs		/sys/kernel/debug	debugfs	defaults	0	0
-configfs	/sys/kernel/config	configfs	defaults	0	0
+debugfs		/sys/kernel/debug	debugfs	defaults,nofail	0	0
+configfs	/sys/kernel/config	configfs	defaults,nofail	0	0

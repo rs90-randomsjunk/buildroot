@@ -24,10 +24,17 @@ if [ -r $BOOTLD ] ; then
 fi
 
 if [ -r $KERNEL ] ; then
-	KERNEL_BAK_ID=`ubinfo -d 0 -N kernel_bak |head -n1 |sed "s/.*\([[:digit:]]\+\) .*/\1/"`
+	VOLUME_ID=`ubinfo -d 0 -N kernel_bak |head -n1 |sed "s/.*\([[:digit:]]\+\) .*/\1/"`
+	if [ "`grep kernel_bak /proc/cmdline`" ] ; then
+		VOLUME_ID=`expr 1 - $VOLUME_ID`
+	fi
+
 	echo "Updating kernel..."
-	ubiupdatevol /dev/ubi0_$KERNEL_BAK_ID $KERNEL
-	ubirename /dev/ubi0 kernel kernel_bak kernel_bak kernel
+	ubiupdatevol /dev/ubi0_$VOLUME_ID $KERNEL
+
+	if [ -z "`grep kernel_bak /proc/cmdline`" ] ; then
+		ubirename /dev/ubi0 kernel kernel_bak kernel_bak kernel
+	fi
 fi
 
 if [ -r $MININIT ] ; then
