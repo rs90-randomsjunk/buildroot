@@ -1,76 +1,67 @@
 #!/bin/sh
 
-do_checks()
-{
-	if [ "`grep root=/dev/$1 /proc/cmdline`" ] ; then
-		echo "Mounted at /boot ; skipping"
-		exit 1
-	fi
-
-	if [ "`grep /dev/$1 /proc/mounts`" ] ; then
-		echo "Partition already mounted ; skipping"
-		exit 1
-	fi
-}
-
-get_mount_name()
-{
-	MOUNT_NAME="`/usr/sbin/blkid_label /dev/$1`"
-	[ -z "$MOUNT_NAME" ] && MOUNT_NAME="$1"
-}
-
-get_fs()
-{
-	MOUNT_OPTS=defaults
-	MOUNT_FS="`/usr/sbin/blkid_fs /dev/$1`"
-	[ "$MOUNT_FS" = "vfat" ] && MOUNT_OPTS+=",flush"
-}
-
 do_umount()
 {
-	get_mount_name $1
+	MOUNTPOINT="`grep -m1 $MDEV /proc/mounts |cut -d' ' -f 2`"
 
-	mount -o remount,rw /media
+	if [ "$MOUNTPOINT" ] ; then
+		mount -o remount,rw /media
 
-	umount /media/$MOUNT_NAME
-	rmdir /media/$MOUNT_NAME
+		umount -f $MOUNTPOINT
+		rmdir $MOUNTPOINT
 
-	mount -o remount,ro /media
+		mount -o remount,ro /media
+	fi
 }
 
 do_mount()
 {
-	get_mount_name $1
-	get_fs $1
+	MOUNT_NAME="`/usr/sbin/blkid_label $MDEV`"
+	[ -z "$MOUNT_NAME" ] && MOUNT_NAME="`basename $MDEV`"
+
+	MOUNT_OPTS=defaults
+	MOUNT_FS="`/usr/sbin/blkid_fs $MDEV`"
+	[ "$MOUNT_FS" = "vfat" ] && MOUNT_OPTS="${MOUNT_OPTS},flush"
 
 	mount -o remount,rw /media
 
 	mkdir /media/$MOUNT_NAME
-	mount /dev/$1 -t $MOUNT_FS -o $MOUNT_OPTS /media/$MOUNT_NAME
+	mount $MDEV -t $MOUNT_FS -o $MOUNT_OPTS /media/$MOUNT_NAME
 
 	mount -o remount,ro /media
 }
 
 do_remove()
 {
-	do_checks $1
-	do_umount $1
+	if [ "`grep root=$MDEV /proc/cmdline`" ] ; then
+		echo "Mounted at /boot ; skipping"
+		exit 1
+	fi
+
+	echo "Removing device $MDEV"
+	do_umount
 }
 
 do_add()
 {
-	do_remove $1
-	do_mount $1
+	if [ "`grep $MDEV /proc/mounts`" ] ; then
+		echo "Partition already mounted ; skipping"
+		exit 1
+	fi
+
+	do_remove
+	echo "Adding device $MDEV"
+	do_mount
 }
 
-case $1 in
-	--remove)
-		do_remove $2
+case $ACTION in
+	remove)
+		do_remove >> /var/log/automounter.log 2>&1
 		;;
-	--add)
-		do_add $2
+	add)
+		do_add >> /var/log/automounter.log 2>&1
 		;;
 	*)
-		echo "Unrecognized command $1"
+		echo "Unrecognized command $ACTION"
 		;;
 esac

@@ -14,7 +14,11 @@ MININIT=$1/mininit-syspart
 
 if [ -r $ROOTFS ] ; then
 	echo "Updating rootfs..."
-	cp $ROOTFS /boot/update_r.bin
+	if [ "`grep rootfs_bak /proc/cmdline`" ] ; then
+		cp $ROOTFS /boot/rootfs.squashfs
+	else
+		cp $ROOTFS /boot/update_r.bin
+	fi
 fi
 
 if [ -r $BOOTLD ] ; then
