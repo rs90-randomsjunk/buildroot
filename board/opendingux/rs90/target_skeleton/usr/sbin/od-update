@@ -7,7 +7,9 @@ if [ $# -ne 1 ] ; then
 	exit 1
 fi
 
-BOOTLD=$1/ubiboot.bin
+HWVARIANT="`sed 's/.*hwvariant=\([[:alnum:]]\+\).*/\1/' /proc/cmdline`"
+
+BOOTLD=$1/ubiboot-${HWVARIANT}.bin
 KERNEL=$1/uzImage.bin
 ROOTFS=$1/rootfs.squashfs
 MININIT=$1/mininit-syspart
