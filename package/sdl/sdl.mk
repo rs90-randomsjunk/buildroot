@@ -22,6 +22,8 @@ HOST_SDL_PRE_CONFIGURE_HOOKS += SDL_RUN_AUTOGEN
 SDL_DEPENDENCIES += host-automake host-autoconf host-libtool
 HOST_SDL_DEPENDENCIES += host-automake host-autoconf host-libtool
 
+SDL_CONF_OPTS += --enable-audio=yes --enable-alsa=yes --enable-alsa-shared=no
+
 SDL_CONF_OPTS += --enable-video-qtopia=no
 
 ifeq ($(BR2_PACKAGE_SDL_FBCON),y)
