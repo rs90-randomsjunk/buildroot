@@ -20,14 +20,14 @@ SDL_MIXER_CONF_OPTS = \
 	--disable-music-flac # configure script fails when cross compiling
 	
 ifeq ($(BR2_STATIC_LIBS),y)
-SDL_MIXER_CONF_OPTS += --disable-music-mod-shared --disable-music-fluidsynth-shared --disable-music-ogg-shared --disable-music-flac-shared --disable-music-mp3-shared --disable-shared
+SDL_MIXER_CONF_OPTS += --enable-music-mod-shared=no --enable-music-fluidsynth-shared=no --enable-music-ogg-shared=no --enable-music-flac-shared=no --enable-music-mp3-shared=no --disable-shared
 endif
 
 ifeq ($(BR2_PACKAGE_MPG123),y)
 SDL_MIXER_CONF_OPTS += --enable-music-mp3
 SDL_MIXER_DEPENDENCIES += mpg123
 else
-SDL_MIXER_CONF_OPTS += --disable-music-mp3
+SDL_MIXER_CONF_OPTS += --enable-music-mp3=no
 endif
 
 # Prefer libmikmod over Modplug due to dependency on C++
@@ -39,7 +39,7 @@ ifeq ($(BR2_PACKAGE_LIBMODPLUG),y)
 SDL_MIXER_CONF_OPTS += --enable-music-mod-modplug
 SDL_MIXER_DEPENDENCIES += libmodplug
 else
-SDL_MIXER_CONF_OPTS += --disable-music-mod-modplug
+SDL_MIXER_CONF_OPTS += --enable-music-mod-modplug=no
 endif
 endif
 
