@@ -15,8 +15,6 @@ SDL_MIXER_DEPENDENCIES = sdl
 SDL_MIXER_CONF_OPTS = \
 	--without-x \
 	--with-sdl-prefix=$(STAGING_DIR)/usr \
-	--disable-music-mp3 \
-	--disable-music-mod \
 	--disable-music-flac # configure script fails when cross compiling
 	
 ifeq ($(BR2_STATIC_LIBS),y)
@@ -27,7 +25,7 @@ ifeq ($(BR2_PACKAGE_MPG123),y)
 SDL_MIXER_CONF_OPTS += --enable-music-mp3
 SDL_MIXER_DEPENDENCIES += mpg123
 else
-SDL_MIXER_CONF_OPTS += --enable-music-mp3=no
+SDL_MIXER_CONF_OPTS += --disable-music-mp3
 endif
 
 # Prefer libmikmod over Modplug due to dependency on C++
@@ -39,7 +37,7 @@ ifeq ($(BR2_PACKAGE_LIBMODPLUG),y)
 SDL_MIXER_CONF_OPTS += --enable-music-mod-modplug
 SDL_MIXER_DEPENDENCIES += libmodplug
 else
-SDL_MIXER_CONF_OPTS += --enable-music-mod-modplug=no
+SDL_MIXER_CONF_OPTS += --disable-music-mod
 endif
 endif
 
@@ -48,7 +46,12 @@ ifeq ($(BR2_PACKAGE_TREMOR),y)
 SDL_MIXER_CONF_OPTS += --enable-music-ogg-tremor
 SDL_MIXER_DEPENDENCIES += tremor
 else
+ifeq ($(BR2_PACKAGE_LIBVORBIS),y)
+SDL_MIXER_CONF_OPTS += --enable-music-ogg
+SDL_MIXER_DEPENDENCIES += libvorbis
+else
 SDL_MIXER_CONF_OPTS += --disable-music-ogg
+endif
 endif
 
 SDL_MIXER_CONF_OPTS += --enable-music-timidity-midi
