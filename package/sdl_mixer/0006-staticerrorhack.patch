@@ -1,91 +1,3 @@
---- a/configure
-+++ a/configure
-@@ -15107,8 +15107,10 @@
-             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lmpg123"
-         fi
-     else
--        { $as_echo "$as_me:$LINENO: WARNING: *** Unable to find mpg123 library (https://www.mpg123.de)" >&5
--$as_echo "$as_me: WARNING: *** Unable to find mpg123 library (https://www.mpg123.de)" >&2;}
-+		have_mpg123=yes
-+        SOURCES="$SOURCES $srcdir/*_mp3.c $srcdir/*_mpg.c"
-+		EXTRA_CFLAGS="$EXTRA_CFLAGS -DMP3_MUSIC"
-+		EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lmpg123"
-     fi
- fi
- 
-
---- a/configure
-+++ a/configure
-@@ -13939,10 +13939,9 @@
-                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisidec -lvorbis"
-             fi
-         else
--            { $as_echo "$as_me:$LINENO: WARNING: *** Unable to find Ogg Vorbis Tremor library (http://www.xiph.org/)" >&5
--$as_echo "$as_me: WARNING: *** Unable to find Ogg Vorbis Tremor library (http://www.xiph.org/)" >&2;}
--            { $as_echo "$as_me:$LINENO: WARNING: Ogg Vorbis support disabled" >&5
--$as_echo "$as_me: WARNING: Ogg Vorbis support disabled" >&2;}
-+            SOURCES="$SOURCES $srcdir/*_ogg.c"
-+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DOGG_MUSIC -DOGG_USE_TREMOR"
-+			EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisidec -lvorbis"
-         fi
-     else
-         if test "${ac_cv_header_vorbis_vorbisfile_h+set}" = set; then
-@@ -14170,10 +14169,9 @@
-                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisfile -lvorbis -logg -lm"
-             fi
-         else
--            { $as_echo "$as_me:$LINENO: WARNING: *** Unable to find Ogg Vorbis library (http://www.xiph.org/)" >&5
--$as_echo "$as_me: WARNING: *** Unable to find Ogg Vorbis library (http://www.xiph.org/)" >&2;}
--            { $as_echo "$as_me:$LINENO: WARNING: Ogg Vorbis support disabled" >&5
--$as_echo "$as_me: WARNING: Ogg Vorbis support disabled" >&2;}
-+            SOURCES="$SOURCES $srcdir/*_ogg.c"
-+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DOGG_MUSIC"
-+			EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisfile -lvorbis -logg -lm"
-         fi
-     fi
-     LIBS="$LIBS_SAVED"
---- a/configure.in
-+++ b/configure.in
-@@ -583,7 +583,10 @@
-             EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lmpg123"
-         fi
-     else
--        AC_MSG_WARN([*** Unable to find mpg123 library (https://www.mpg123.de)])
-+		have_mpg123=yes
-+        SOURCES="$SOURCES $srcdir/*_mp3.c $srcdir/*_mpg.c"
-+        EXTRA_CFLAGS="$EXTRA_CFLAGS -DMP3_MUSIC"
-+        EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lmpg123"
-     fi
- fi
- 
-
---- a/configure.in
-+++ a/configure.in
-@@ -452,8 +452,9 @@
-                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisidec -lvorbis"
-             fi
-         else
--            AC_MSG_WARN([*** Unable to find Ogg Vorbis Tremor library (http://www.xiph.org/)])
--            AC_MSG_WARN([Ogg Vorbis support disabled])
-+			SOURCES="$SOURCES $srcdir/*_ogg.c"
-+			EXTRA_CFLAGS="$EXTRA_CFLAGS -DOGG_MUSIC -DOGG_USE_TREMOR"
-+			EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisidec -lvorbis"
-         fi
-     else
-         AC_CHECK_HEADER([vorbis/vorbisfile.h], [have_ogg_hdr=yes])
-@@ -482,8 +483,9 @@
-                 EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisfile -lvorbis -logg -lm"
-             fi
-         else
--            AC_MSG_WARN([*** Unable to find Ogg Vorbis library (http://www.xiph.org/)])
--            AC_MSG_WARN([Ogg Vorbis support disabled])
-+            SOURCES="$SOURCES $srcdir/*_ogg.c"
-+            EXTRA_CFLAGS="$EXTRA_CFLAGS -DOGG_MUSIC"
-+            EXTRA_LDFLAGS="$EXTRA_LDFLAGS -lvorbisfile -lvorbis -logg -lm"
-         fi
-     fi
-     LIBS="$LIBS_SAVED"
-
 --- a/dynamic_mod.c
 +++ b/dynamic_mod.c
 @@ -28,6 +28,8 @@
@@ -112,7 +24,7 @@
 
 --- a/playmus.c
 +++ b/playmus.c
-@@ -1,239 +1 @@
+@@ -1,247 +0,0 @@
 -/*
 -  PLAYMUS:  A test application for the SDL mixer library.
 -  Copyright (C) 1997-2012 Sam Lantinga <slouken@libsdl.org>
@@ -179,6 +91,7 @@
 -	fprintf(stderr, "Usage: %s [-i] [-l] [-8] [-r rate] [-c channels] [-b buffers] [-v N] [-rwops] <musicfile>\n", argv0);
 -}
 -
+-/*#define SEEK_TEST */
 -void Menu(void)
 -{
 -	char buf[10];
@@ -187,6 +100,13 @@
 -	fflush(stdin);
 -	if (scanf("%s",buf) == 1) {
 -		switch(buf[0]){
+-#if defined(SEEK_TEST)
+-		case '0': Mix_SetMusicPosition(0); break;
+-		case '1': Mix_SetMusicPosition(10);break;
+-		case '2': Mix_SetMusicPosition(20);break;
+-		case '3': Mix_SetMusicPosition(30);break;
+-		case '4': Mix_SetMusicPosition(40);break;
+-#endif /* SEEK_TEST */
 -		case 'p': case 'P':
 -			Mix_PauseMusic();
 -			break;
@@ -355,7 +275,7 @@
 +int main(){}
 --- a/playwave.c
 +++ b/playwave.c
-@@ -1,501 +1 @@
+@@ -1,501 +0,0 @@
 -/*
 -  PLAYWAVE:  A test application for the SDL mixer library.
 -  Copyright (C) 1997-2012 Sam Lantinga <slouken@libsdl.org>
