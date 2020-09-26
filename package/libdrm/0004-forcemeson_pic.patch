@@ -1,0 +1,21 @@
+--- a/meson.build
++++ b/meson.build
+@@ -234,8 +234,7 @@
+ endforeach
+ 
+ # all c args:
+-libdrm_c_args = warn_c_args + ['-fvisibility=hidden']
+-
++libdrm_c_args = warn_c_args + ['-fno-PIC']
+ 
+ dep_pciaccess = dependency('pciaccess', version : '>= 0.10', required : with_intel)
+ dep_cunit = dependency('cunit', version : '>= 2.1', required : false)
+@@ -317,6 +316,8 @@
+   include_directories : inc_drm,
+   version : '2.4.0',
+   install : true,
++  pie: false,
++  pic: false
+ )
+ 
+ test(

@@ -25,6 +25,8 @@ LIBDRM_CONF_OPTS = \
 
 LIBDRM_CONF_ENV = ac_cv_prog_cc_c99='-std=gnu99'
 
+LIBDRM_CONF_OPTS += -Db_pie=false -Db_staticpic=false
+
 ifeq ($(BR2_PACKAGE_LIBATOMIC_OPS),y)
 LIBDRM_DEPENDENCIES += libatomic_ops
 ifeq ($(BR2_sparc_v8)$(BR2_sparc_leon3),y)
